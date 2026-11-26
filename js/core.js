@@ -28,12 +28,16 @@ const K={
  pnch:{n:'Local',t:'Local / panchayat road',cat:'road',rw:7,sw:1.5,col:'#222222',fill:'#ffffff'},
  mud:{n:'Dirt',t:'Dirt road (dashed edges)',cat:'road',rw:6,sw:1.5,col:'#222222',fill:'#ffffff',dash:'dash'},
  stream:{n:'Stream',t:'Stream / canal',cat:'road',rw:9,sw:1.6,col:'#1769c2',fill:'#cfe6fb'},
- custom:{n:'Custom',t:'Custom-width road',cat:'road',rw:12,sw:1.6,col:'#222222',fill:'#ffffff'},
+ custom:{n:'Road',t:'Road: choose NH / SH / PWD / Panchayat or any width',cat:'road',rw:12,sw:1.6,col:'#222222',fill:'#ffffff'},
  foot:{n:'Path',t:'Footpath (dotted)',cat:'line',col:'#1b1f24',sw:2.4,dash:'dot'},
- rail:{n:'Rail',t:'Railway track',cat:'line',col:'#222222',sw:1.8},
+ rail:{n:'Rail',t:'Railway track (double line with cross ties)',cat:'line',rw:8,col:'#222222',sw:1.8},
  elec:{n:'Power',t:'Electric line',cat:'line',col:'#c62828',sw:1.8,dash:'dd'},
  plot:{n:'Plot',t:'Plot boundary (red)',cat:'line',col:'#d32f2f',sw:2.2}
 };
+/* Road types offered in the road tool. NH/SH/PWD/PNCH are no longer separate tools, only widths of the one road tool
+   (old drawings that used those kinds still draw correctly). */
+const ROAD_PRESETS={nh:{n:'NH',rw:16},sh:{n:'SH',rw:12},pwd:{n:'PWD',rw:9},pnch:{n:'Panchayat',rw:7}};
+const ROAD_KINDS=['custom','nh','sh','pwd','pnch'];
 const BASE={
  rect:{stroke:'#1b1f24',sw:2,dash:'',fill:null},
  ellipse:{stroke:'#1b1f24',sw:2,dash:'',fill:null},
@@ -64,7 +68,7 @@ function bboxOf(o){
   const pts=o.type==='path'?o.pts:corners(o);
   let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
   pts.forEach(p=>{x0=Math.min(x0,p[0]);y0=Math.min(y0,p[1]);x1=Math.max(x1,p[0]);y1=Math.max(y1,p[1]);});
-  if(o.type==='path'){const pad=K[o.kind].cat==='road'?o.rw/2+o.sw:(o.sw||1)/2;x0-=pad;y0-=pad;x1+=pad;y1+=pad;}
+  if(o.type==='path'){const pad=K[o.kind].cat==='road'?o.rw/2+o.sw:(o.kind==='rail'?(o.rw||8)/2+o.sw+2.5:(o.sw||1)/2);x0-=pad;y0-=pad;x1+=pad;y1+=pad;}
   return {x0,y0,x1,y1};
 }
 function unionBox(os){
@@ -139,7 +143,11 @@ function drawLine(o,d,studio){
   const fill=o.closed&&o.fill?o.fill:'none';
   let s='';
   if(o.kind==='rail'){
-    s='<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+w+'" stroke-linejoin="round"/><path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+f2(7+w)+'" stroke-dasharray="1.8 7"/>';
+    /* two parallel rails + cross ties: outer stroke, white inner stroke (leaves two lines), then short ties across both */
+    const g=o.rw||8;
+    s='<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+f2(g+w)+'" stroke-linejoin="round"/>'+
+      '<path d="'+d+'" fill="none" stroke="#fff" stroke-width="'+f2(Math.max(0.5,g-w))+'" stroke-linejoin="round"/>'+
+      '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+f2(g+w+4)+'" stroke-dasharray="'+f2(Math.max(1,w*0.9))+' '+f2(Math.max(5,w*4))+'" stroke-linejoin="round"/>';
   }else{
     s='<path d="'+d+'" fill="'+fill+'" stroke="'+col+'" stroke-width="'+w+'" stroke-linejoin="round" stroke-linecap="round"'+dashAttr(o)+'/>';
   }

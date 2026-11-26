@@ -475,6 +475,9 @@ function syncCtx(){
     $('#cFillOn').classList.toggle('on',!!o.fill);
     $('#cFill').value=toHex(o.fill||'#fff3b0');
     $('#cRW').value=o.rw||'';
+    const rtSel=$('#cRoadType');
+    rtSel.style.display=ROAD_KINDS.includes(o.kind)?'':'none';
+    rtSel.value=o.rtype||(ROAD_PRESETS[o.kind]?o.kind:'');
     $('#cCenter').classList.toggle('on',!!o.center);
     $('#cBend').classList.toggle('on',(o.r||0)>0);
     $('#cR').value=o.r||'';
@@ -503,13 +506,23 @@ function setProp(p,v){
   }
   syncCtx();
 }
+function setProps(map,key){
+  const os=selObjs();
+  if(os.length){pushH(key);os.forEach(o=>Object.assign(o,map));renderStudio();}
+  else{const t=DS.tool;if(t==='select'||t==='pan'||t==='erase')return;Object.assign(DS.over[t]=DS.over[t]||{},map);}
+  syncCtx();
+}
 function wireCtx(){
   $('#cStroke').addEventListener('input',e=>setProp('stroke',e.target.value));
   $('#cSW').addEventListener('change',e=>setProp('sw',parseFloat(e.target.value)));
   $('#cDash').addEventListener('change',e=>setProp('dash',e.target.value));
   $('#cFillOn').addEventListener('click',()=>{const o=curSrc();setProp('fill',o&&o.fill?null:$('#cFill').value);});
   $('#cFill').addEventListener('input',e=>setProp('fill',e.target.value));
-  $('#cRW').addEventListener('change',e=>{const v=parseFloat(e.target.value);if(v>0)setProp('rw',v);});
+  $('#cRW').addEventListener('change',e=>{const v=parseFloat(e.target.value);if(v>0)setProps({rw:v,rtype:''},'p:rw');});
+  $('#cRoadType').addEventListener('change',e=>{
+    const k=e.target.value,pr=ROAD_PRESETS[k];
+    if(pr)setProps({rw:pr.rw,rtype:k},'p:rtype');else setProps({rtype:''},'p:rtype');
+  });
   $('#cCenter').addEventListener('click',()=>{const o=curSrc();setProp('center',!(o&&o.center));});
   $('#cBend').addEventListener('click',()=>{const o=curSrc();setProp('r',(o&&o.r>0)?0:(parseFloat($('#cR').value)||14));});
   $('#cR').addEventListener('change',e=>{const v=parseFloat(e.target.value);setProp('r',v>0?v:0);});
@@ -573,7 +586,7 @@ function delSel(){
 const RAIL=[
  ['',[['select'],['pan'],['erase']]],
  ['Lines',[['line'],['arrow'],['elbow'],['cconn'],['curve'],['poly'],['polygon'],['scribble']]],
- ['Roads & lines',[['nh'],['sh'],['pwd'],['pnch'],['mud'],['custom'],['foot'],['stream'],['rail'],['elec'],['plot']]],
+ ['Roads & lines',[['custom'],['mud'],['foot'],['stream'],['rail'],['elec'],['plot']]],
  ['Shapes',[['rect'],['ellipse'],['plotbox'],['text']]],
  ['Insert',[['sym'],['image'],['qr']]]
 ];
