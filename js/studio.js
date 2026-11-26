@@ -617,7 +617,7 @@ function buildSymGrid(){
 }
 /* ---- online symbol search (Iconify: https://iconify.design, open-source icon sets) ---- */
 const ONLINE = {};          /* picked online symbols, by id "set:name" */
-const OL = { api: 'https://api.iconify.design', results: [], cols: {}, state: 'idle', msg: '', timer: null };
+const OL = { api: 'https://api.iconify.design', results: [], cols: {}, data: {}, state: 'idle', msg: '', timer: null };
 function olQuery(q) {
   q = q.trim();
   if (!/[^\x00-\x7f]/.test(q)) return q;                 /* Malayalam word: find it in our own symbol names */
@@ -634,17 +634,39 @@ async function olSearch() {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const j = await r.json();
     if (seq !== DS.olSeq) return;
-    OL.results = j.icons || []; OL.cols = j.collections || {};
-    OL.state = OL.results.length ? 'ok' : 'none';
+    OL.cols = j.collections || {};
+    const names = j.icons || [], byP = {};
+    names.forEach(n => { const i = n.indexOf(':'); (byP[n.slice(0, i)] = byP[n.slice(0, i)] || []).push(n.slice(i + 1)); });
+    let failed = 0;
+    const jobs = [];
+    Object.keys(byP).forEach(p => {
+      const list = byP[p].sort();
+      for (let k = 0; k < list.length; k += 20) jobs.push(olLoad(p, list.slice(k, k + 20)).catch(() => { failed++; }));
+    });
+    await Promise.all(jobs);
+    if (seq !== DS.olSeq) return;
+    OL.results = names.filter(n => OL.data[n]);
+    OL.state = OL.results.length ? 'ok' : (failed ? 'err' : 'none');
   } catch (_) {
     if (seq !== DS.olSeq) return;
     OL.results = []; OL.state = 'err';
   }
   renderOnline();
 }
-function olIconUrl(name, color) {
-  const i = name.indexOf(':');
-  return OL.api + '/' + name.slice(0, i) + '/' + name.slice(i + 1) + '.svg' + (color ? '?color=' + encodeURIComponent(color) : '');
+/* Drawings arrive as JSON (not as <img> files), so they show even when image loading is restricted. */
+async function olLoad(prefix, names) {
+  const r = await fetch(OL.api + '/' + encodeURIComponent(prefix) + '.json?icons=' + names.map(encodeURIComponent).join(','));
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const j = await r.json(), icons = j.icons || {};
+  Object.keys(icons).forEach(n => {
+    const ic = icons[n];
+    if (ic && ic.body) OL.data[prefix + ':' + n] = { b: ic.body, w: ic.width || j.width || 24, h: ic.height || j.height || 24 };
+  });
+}
+function olSvg(name, color) {
+  const d = OL.data[name];
+  if (!d) return '';
+  return safeSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + d.w + ' ' + d.h + '">' + d.b.replace(/currentColor/g, color) + '</svg>');
 }
 function renderOnline() {
   const g = $('#sSymGrid'), note = $('#sSymNote');
@@ -652,23 +674,17 @@ function renderOnline() {
     err: 'Could not reach the online library. Check your internet connection.' }[OL.state];
   if (OL.state !== 'ok') { g.innerHTML = '<p class="none">' + msg + '</p>'; note.textContent = ''; return; }
   g.innerHTML = OL.results.map(n => '<button data-ol="' + esc(n) + '" title="' + esc(n) + '" class="' + (DS.symId === 'ol:' + n ? 'on' : '') +
-    '"><img loading="lazy" alt="" width="40" height="40" src="' + olIconUrl(n) + '"><span>' + esc(n.split(':')[1]) + '</span></button>').join('');
+    '">' + olSvg(n, '#1b1f24') + '<span>' + esc(n.split(':')[1]) + '</span></button>').join('');
   note.textContent = 'Icons from Iconify open-source sets. Check the licence of a set before publishing.';
 }
-async function olPick(name) {
-  try {
-    const r = await fetch(olIconUrl(name));
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    let t = await r.text();
-    t = t.replace(/currentColor/g, '{c}');
-    const clean = safeSvg(t);
-    if (!clean) throw new Error('bad svg');
-    const id = 'ol:' + name, col = OL.cols[name.split(':')[0]] || {}, lic = col.license && (col.license.spdx || col.license.title) || '';
-    ONLINE[id] = { id, e: name.split(':')[1].replace(/[-_]/g, ' '), s: clean, online: true, lic, set: col.name || '' };
-    DS.symId = id; buildSymGrid();
-    hint(ONLINE[id].e + (lic ? ' (' + lic + ')' : '') + ' — tap the page to place it');
-    if (window.matchMedia && window.matchMedia('(max-width:720px)').matches) openSymPanel(false);
-  } catch (_) { toast('Could not load that icon (offline?)'); }
+function olPick(name) {
+  const clean = olSvg(name, '{c}');
+  if (!clean) { toast('Could not load that icon'); return; }
+  const id = 'ol:' + name, col = OL.cols[name.split(':')[0]] || {}, lic = col.license && (col.license.spdx || col.license.title) || '';
+  ONLINE[id] = { id, e: name.split(':')[1].replace(/[-_]/g, ' '), s: clean, online: true, lic, set: col.name || '' };
+  DS.symId = id; buildSymGrid();
+  hint(ONLINE[id].e + (lic ? ' (' + lic + ')' : '') + ' — tap the page to place it');
+  if (window.matchMedia && window.matchMedia('(max-width:720px)').matches) openSymPanel(false);
 }
 function setSymMode(m) {
   DS.symMode = m;
