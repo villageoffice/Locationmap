@@ -188,3 +188,14 @@ svg.i{flex:none;vertical-align:middle}
 @media (max-width:420px){
   #drawBtn span{display:none}
 }
+
+/* online symbol search */
+#sSymTabs{display:flex;gap:4px;padding:0 6px 6px}
+#sSymTabs button{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 8px;font-size:13px;cursor:pointer}
+#sSymTabs button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+#sSymTabs button svg{width:15px;height:15px}
+#sSym.web #sSymCats,#sSym.web .so{display:none}
+#sSymGrid img{width:40px;height:40px;object-fit:contain}
+#sSymGrid .none{grid-column:1/-1;color:var(--muted);font-size:13px;padding:10px 4px;margin:0}
+#sSymNote{font-size:11px;color:var(--muted);padding:6px 8px;border-top:1px solid var(--line)}
+#sSymNote:empty{display:none}
