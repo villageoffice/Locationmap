@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0b6e4f">
+<meta name="theme-color" content="#1f2937">
 <meta name="description" content="Document editor with a built-in drawing studio for location maps, sketches and survey diagrams. Works offline in your browser.">
 <title>Doc &amp; Drawing Studio</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -12,14 +12,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;600&family=Chilanka&family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Serif+Malayalam:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1.1.2">
+<link rel="stylesheet" href="css/style.css?v=1.2.0">
 </head>
 <body>
 
 <!-- ============================ document ============================ -->
 <header id="top">
-  <input id="title" value="" placeholder="Untitled document" aria-label="Document title">
-  <span id="saveState" aria-live="polite"></span>
+  <a class="brand" href="./" aria-label="Doc &amp; Drawing Studio"><img src="icons/icon.svg" alt="" width="28" height="28"><b>Doc &amp; Drawing Studio</b></a>
+  <div class="docname">
+    <input id="title" value="" placeholder="Untitled document" aria-label="Document title">
+    <span id="saveState" aria-live="polite"></span>
+  </div>
+  <nav id="mbar" aria-label="Menu"></nav>
+  <span class="sp"></span>
   <button id="saveBtn" class="ic" title="Save (Ctrl+S)" aria-label="Save"><i data-i="save"></i></button>
   <button id="openBtn" class="ic" title="Open file (Ctrl+O)" aria-label="Open file"><i data-i="open"></i></button>
   <button id="histBtn" class="ic" title="Version history" aria-label="Version history"><i data-i="history"></i></button>
@@ -136,7 +141,8 @@
   <button data-f="del" title="Delete"><i data-i="trash"></i></button>
 </div>
 
-<footer id="status"><span id="wc"></span><span id="ms">Auto-saved in this browser</span></footer>
+<footer id="status"><span id="wc"></span><span class="sp"></span><span id="ms">Auto-saved in this browser</span>
+  <div class="zoom"><button id="dzOut" title="Zoom out" aria-label="Zoom out">&minus;</button><span id="dzLbl">100%</span><button id="dzIn" title="Zoom in" aria-label="Zoom in">+</button></div></footer>
 <div id="toast" role="status"></div>
 <input type="file" id="fileIn" accept=".json,.txt,.html,.htm,application/json,text/plain,text/html" hidden>
 <input type="file" id="imgIn" accept="image/*" hidden>
@@ -184,7 +190,7 @@
       <li><b>Select</b>: tap, drag a box, or Shift/Ctrl+tap for many. Blue handles resize, the round handle rotates. <b>Group</b> keeps items together.</li>
       <li>Double-tap: edit text, symbol name, or the points of a line.</li>
       <li>Keys: V select · H pan · T text · E erase · R rotate 90° · Ctrl+Z / Y undo / redo · Ctrl+D duplicate · Ctrl+G group · Ctrl+A select all · Del delete · Space+drag pan · Alt = no snap · Shift = straight / 45°.</li>
-      <li>Zoom with the mouse wheel or a two-finger pinch.</li>
+      <li>Zoom with the mouse wheel or a two-finger pinch. On a computer the <b>Layers</b> tab (right) lists every object: click to select, lock or delete.</li>
     </ul>
   </div>
 </dialog>
@@ -231,90 +237,21 @@
   <div id="sTop">
     <button class="ic" id="sCancel" title="Close without inserting" aria-label="Close"><i data-i="close"></i></button>
     <b class="ttl">Drawing</b>
+    <nav id="sMbar" aria-label="Drawing menu"></nav>
     <span class="sp"></span>
     <button class="ic" id="sUndo" title="Undo (Ctrl+Z)"><i data-i="undo"></i></button>
     <button class="ic" id="sRedo" title="Redo (Ctrl+Y)"><i data-i="redo"></i></button>
+    <span class="vr"></span>
     <button class="ic" id="sZoomOut" title="Zoom out"><i data-i="zoomOut"></i></button><span id="sZoomLbl">100%</span><button class="ic" id="sZoomIn" title="Zoom in"><i data-i="zoomIn"></i></button>
     <button class="ic" id="sFit" title="Fit page"><i data-i="fit"></i></button>
+    <span class="vr"></span>
     <button class="ic" id="sGrid" title="Grid"><i data-i="grid"></i></button>
     <button class="ic on" id="sSnap" title="Snap to points"><i data-i="magnet"></i></button>
-    <button class="ic" id="sOrient" title="Portrait / landscape"><i data-i="orient"></i></button>
-    <button class="ic" id="sPage" title="Page setup"><i data-i="page"></i></button>
-    <button class="ic" id="sFile" title="Drawing file: open, save, export"><i data-i="save"></i></button>
-    <button class="ic" id="sHelp" title="Help"><i data-i="help"></i></button>
+    <button class="ic m-only" id="sOrient" title="Portrait / landscape"><i data-i="orient"></i></button>
+    <button class="ic m-only" id="sPage" title="Page setup"><i data-i="page"></i></button>
+    <button class="ic m-only" id="sFile" title="Drawing file: open, save, export"><i data-i="save"></i></button>
+    <button class="ic m-only" id="sHelp" title="Help"><i data-i="help"></i></button>
     <button class="pill" id="sDone"><i data-i="check"></i><span>Insert</span></button>
-  </div>
-  <div id="sCtx">
-    <div class="cg" data-for="stroke">
-      <label title="Line colour"><i data-i="edit"></i><input type="color" id="cStroke" value="#1b1f24"></label>
-      <select id="cSW" title="Line width"><option>0.5</option><option>1</option><option>1.5</option><option>2</option><option>3</option><option>4</option><option>6</option><option>8</option><option>12</option></select>
-      <select id="cDash" title="Line style"><option value="">Solid</option><option value="dash">Dashed</option><option value="dot">Dotted</option><option value="dd">Dash-dot</option></select>
-    </div>
-    <div class="cg" data-for="fill">
-      <button id="cFillOn" title="Fill"><i data-i="fill"></i></button>
-      <input type="color" id="cFill" value="#fff3b0" title="Fill colour">
-    </div>
-    <div class="cg" data-for="road">
-      <select id="cRoadType" title="Road type (sets the width)">
-        <option value="">Custom</option><option value="nh">NH</option><option value="sh">SH</option><option value="pwd">PWD</option><option value="pnch">Panchayat</option>
-      </select>
-      <label title="Road width">Width<input type="number" id="cRW" min="2" max="120" step="1"></label>
-      <button id="cCenter" title="Dashed centre line"><i data-i="centerline"></i><span>Centre line</span></button>
-    </div>
-    <div class="cg" data-for="bend">
-      <button id="cBend" title="Round the corners"><i data-i="bend"></i><span>Bend</span></button>
-      <label title="Bend radius">R<input type="number" id="cR" min="0" max="300" step="2"></label>
-    </div>
-    <div class="cg" data-for="text">
-      <select id="cFont">
-        <option value="'Noto Sans Malayalam',sans-serif">Noto Sans</option>
-        <option value="'Noto Serif Malayalam',serif">Noto Serif</option>
-        <option value="'Manjari',sans-serif">Manjari</option>
-        <option value="'Anek Malayalam',sans-serif">Anek</option>
-        <option value="'Chilanka',cursive">Chilanka</option>
-        <option value="Arial,sans-serif">Arial</option>
-      </select>
-      <select id="cFS"><option>10</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>24</option><option>28</option><option>32</option><option>40</option><option>56</option><option>72</option></select>
-      <button data-t="bold" title="Bold"><i data-i="bold"></i></button>
-      <button data-t="italic" title="Italic"><i data-i="italic"></i></button>
-      <button data-t="ul" title="Underline"><i data-i="underline"></i></button>
-      <button data-al="left" title="Align left"><i data-i="alignL"></i></button>
-      <button data-al="center" title="Centre"><i data-i="alignC"></i></button>
-      <button data-al="right" title="Align right"><i data-i="alignR"></i></button>
-    </div>
-    <div class="cg" data-for="sel">
-      <button data-a="rotL" title="Rotate 90° left"><i data-i="rotCcw"></i></button>
-      <button data-a="rotR" title="Rotate 90° right"><i data-i="rotCw"></i></button>
-      <button data-a="rot180" title="Rotate 180°">180°</button>
-      <button data-a="rotN" title="Rotate by angle…"><i data-i="angle"></i></button>
-    </div>
-    <div class="cg" data-for="sel">
-      <button data-a="group" title="Group (Ctrl+G)"><i data-i="group"></i><span>Group</span></button>
-      <button data-a="ungroup" title="Ungroup (Ctrl+Shift+G)"><i data-i="ungroup"></i><span>Ungroup</span></button>
-      <button data-a="nodes" title="Edit points"><i data-i="nodes"></i><span>Points</span></button>
-    </div>
-    <div class="cg" data-for="sel">
-      <button data-a="front" title="Bring to front"><i data-i="front"></i></button>
-      <button data-a="up" title="Forward"><i data-i="up"></i></button>
-      <button data-a="down" title="Backward"><i data-i="down"></i></button>
-      <button data-a="back" title="Send to back (under roads)"><i data-i="back"></i></button>
-    </div>
-    <div class="cg" data-for="sel">
-      <button data-al2="l" title="Align to page left"><i data-i="alignPL"></i></button>
-      <button data-al2="c" title="Centre horizontally on page"><i data-i="alignPC"></i></button>
-      <button data-al2="r" title="Align to page right"><i data-i="alignPR"></i></button>
-      <button data-al2="t" title="Align to page top"><i data-i="alignPT"></i></button>
-      <button data-al2="m" title="Centre vertically on page"><i data-i="alignPM"></i></button>
-      <button data-al2="b" title="Align to page bottom"><i data-i="alignPB"></i></button>
-    </div>
-    <div class="cg" data-for="sel">
-      <button data-a="dup" title="Duplicate (Ctrl+D)"><i data-i="copy"></i></button>
-      <button data-a="lock" title="Lock / unlock"><i data-i="lock"></i></button>
-      <button data-a="del" title="Delete (Del)"><i data-i="trash"></i></button>
-    </div>
-    <div class="cg" data-for="lockall">
-      <button data-a="unlockall"><i data-i="unlock"></i><span>Unlock all</span></button>
-    </div>
   </div>
   <div id="sBody">
     <div id="sRail"></div>
@@ -348,17 +285,99 @@
         <div id="sSymNote"></div>
       </div>
     </div>
+    <aside id="sDock" aria-label="Properties and layers">
+      <div class="dtabs">
+        <button data-dt="prop" class="on"><i data-i="edit"></i>Properties</button>
+        <button data-dt="layers"><i data-i="group"></i>Layers <span id="lyCount"></span></button>
+      </div>
+      <div id="sCtx" class="none">
+    <div class="cg" data-for="stroke" data-title="Stroke">
+      <label title="Line colour"><i data-i="edit"></i><input type="color" id="cStroke" value="#1b1f24"></label>
+      <select id="cSW" title="Line width"><option>0.5</option><option>1</option><option>1.5</option><option>2</option><option>3</option><option>4</option><option>6</option><option>8</option><option>12</option></select>
+      <select id="cDash" title="Line style"><option value="">Solid</option><option value="dash">Dashed</option><option value="dot">Dotted</option><option value="dd">Dash-dot</option></select>
+    </div>
+    <div class="cg" data-for="fill" data-title="Fill">
+      <button id="cFillOn" title="Fill"><i data-i="fill"></i></button>
+      <input type="color" id="cFill" value="#fff3b0" title="Fill colour">
+    </div>
+    <div class="cg" data-for="road" data-title="Road">
+      <select id="cRoadType" title="Road type (sets the width)">
+        <option value="">Custom</option><option value="nh">NH</option><option value="sh">SH</option><option value="pwd">PWD</option><option value="pnch">Panchayat</option>
+      </select>
+      <label title="Road width">Width<input type="number" id="cRW" min="2" max="120" step="1"></label>
+      <button id="cCenter" title="Dashed centre line"><i data-i="centerline"></i><span>Centre line</span></button>
+    </div>
+    <div class="cg" data-for="bend" data-title="Corners">
+      <button id="cBend" title="Round the corners"><i data-i="bend"></i><span>Bend</span></button>
+      <label title="Bend radius">R<input type="number" id="cR" min="0" max="300" step="2"></label>
+    </div>
+    <div class="cg" data-for="text" data-title="Text">
+      <select id="cFont">
+        <option value="'Noto Sans Malayalam',sans-serif">Noto Sans</option>
+        <option value="'Noto Serif Malayalam',serif">Noto Serif</option>
+        <option value="'Manjari',sans-serif">Manjari</option>
+        <option value="'Anek Malayalam',sans-serif">Anek</option>
+        <option value="'Chilanka',cursive">Chilanka</option>
+        <option value="Arial,sans-serif">Arial</option>
+      </select>
+      <select id="cFS"><option>10</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>24</option><option>28</option><option>32</option><option>40</option><option>56</option><option>72</option></select>
+      <button data-t="bold" title="Bold"><i data-i="bold"></i></button>
+      <button data-t="italic" title="Italic"><i data-i="italic"></i></button>
+      <button data-t="ul" title="Underline"><i data-i="underline"></i></button>
+      <button data-al="left" title="Align left"><i data-i="alignL"></i></button>
+      <button data-al="center" title="Centre"><i data-i="alignC"></i></button>
+      <button data-al="right" title="Align right"><i data-i="alignR"></i></button>
+    </div>
+    <div class="cg" data-for="sel" data-title="Rotate">
+      <button data-a="rotL" title="Rotate 90° left"><i data-i="rotCcw"></i></button>
+      <button data-a="rotR" title="Rotate 90° right"><i data-i="rotCw"></i></button>
+      <button data-a="rot180" title="Rotate 180°">180°</button>
+      <button data-a="rotN" title="Rotate by angle…"><i data-i="angle"></i></button>
+    </div>
+    <div class="cg" data-for="sel" data-title="Group">
+      <button data-a="group" title="Group (Ctrl+G)"><i data-i="group"></i><span>Group</span></button>
+      <button data-a="ungroup" title="Ungroup (Ctrl+Shift+G)"><i data-i="ungroup"></i><span>Ungroup</span></button>
+      <button data-a="nodes" title="Edit points"><i data-i="nodes"></i><span>Points</span></button>
+    </div>
+    <div class="cg" data-for="sel" data-title="Order">
+      <button data-a="front" title="Bring to front"><i data-i="front"></i></button>
+      <button data-a="up" title="Forward"><i data-i="up"></i></button>
+      <button data-a="down" title="Backward"><i data-i="down"></i></button>
+      <button data-a="back" title="Send to back (under roads)"><i data-i="back"></i></button>
+    </div>
+    <div class="cg" data-for="sel" data-title="Align to page">
+      <button data-al2="l" title="Align to page left"><i data-i="alignPL"></i></button>
+      <button data-al2="c" title="Centre horizontally on page"><i data-i="alignPC"></i></button>
+      <button data-al2="r" title="Align to page right"><i data-i="alignPR"></i></button>
+      <button data-al2="t" title="Align to page top"><i data-i="alignPT"></i></button>
+      <button data-al2="m" title="Centre vertically on page"><i data-i="alignPM"></i></button>
+      <button data-al2="b" title="Align to page bottom"><i data-i="alignPB"></i></button>
+    </div>
+    <div class="cg" data-for="sel" data-title="Actions">
+      <button data-a="dup" title="Duplicate (Ctrl+D)"><i data-i="copy"></i></button>
+      <button data-a="lock" title="Lock / unlock"><i data-i="lock"></i></button>
+      <button data-a="del" title="Delete (Del)"><i data-i="trash"></i></button>
+    </div>
+    <div class="cg" data-for="lockall" data-title="Locked items">
+      <button data-a="unlockall"><i data-i="unlock"></i><span>Unlock all</span></button>
+    </div>
+        <div id="sCtxEmpty"><i data-i="select"></i>Select something to edit its properties.</div>
+      </div>
+      <div id="sLayers" hidden><div id="lyList"></div></div>
+    </aside>
   </div>
+  <footer id="sStat"><span id="sCoord">X 0&nbsp; Y 0</span><span id="sPageInfo"></span><span class="sp"></span><span id="sSelInfo"></span></footer>
 </div>
 
-<script src="js/icons.js?v=1.1.2"></script>
-<script src="js/store.js?v=1.1.2"></script>
-<script src="js/symbols.js?v=1.1.2"></script>
-<script src="js/symbols-pictos.js?v=1.1.2"></script>
-<script src="js/core.js?v=1.1.2"></script>
-<script src="js/studio.js?v=1.1.2"></script>
-<script src="js/editor.js?v=1.1.2"></script>
-<script src="js/files.js?v=1.1.2"></script>
-<script src="js/main.js?v=1.1.2"></script>
+<script src="js/icons.js?v=1.2.0"></script>
+<script src="js/store.js?v=1.2.0"></script>
+<script src="js/symbols.js?v=1.2.0"></script>
+<script src="js/symbols-pictos.js?v=1.2.0"></script>
+<script src="js/core.js?v=1.2.0"></script>
+<script src="js/studio.js?v=1.2.0"></script>
+<script src="js/editor.js?v=1.2.0"></script>
+<script src="js/files.js?v=1.2.0"></script>
+<script src="js/ui.js?v=1.2.0"></script>
+<script src="js/main.js?v=1.2.0"></script>
 </body>
 </html>
