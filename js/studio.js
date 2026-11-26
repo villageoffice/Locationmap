@@ -3,7 +3,7 @@
    STUDIO
    ===================================================================== */
 const svg=$('#sSvg');
-DS.symCat='all';DS.symLang='en';DS.meta={};DS.orig=null;
+DS.symCat='all';DS.symLang='en';DS.symMode='lib';DS.olSeq=0;DS.meta={};DS.orig=null;
 const obj=id=>DS.data.objs.find(o=>o.id===id);
 const selObjs=()=>DS.sel.map(obj).filter(Boolean);
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
@@ -357,9 +357,11 @@ function finishBox(D,e){
   const t=D.tool;
   if(t==='sym'){
     if(!dragged){w=h=48;x=D.p0[0]-24;y=D.p0[1]-24;}else{w=h=Math.max(w,h);}
-    const S=SYMMAP[DS.symId],T=tmpl('sym');
+    const S=SYMMAP[DS.symId]||ONLINE[DS.symId],T=tmpl('sym');
+    if(!S){toast('Pick a symbol first');return;}
     pushH();
     const o={id:uid(),type:'sym',sym:DS.symId,x,y,w,h,rot:0,stroke:T.stroke,label:DS.symAuto?symLabel(S):'',fs:13};
+    if(S.online){o.osvg=S.s;o.oname=S.id;}
     DS.data.objs.push(o);setSel([o.id]);renderStudio();return;
   }
   if(!dragged){w=120;h=t==='plotbox'?120:80;x=D.p0[0]-w/2;y=D.p0[1]-h/2;}
@@ -609,8 +611,72 @@ function buildSymCats(){
 }
 function buildSymGrid(){
   const q=($('#sSymQ').value||'').toLowerCase().trim();
+  if(DS.symMode==='web'){renderOnline();return;}
   const list=SYM.filter(s=>(DS.symCat==='all'||s.c===DS.symCat)&&(!q||s.e.toLowerCase().includes(q)||(s.m||'').toLowerCase().includes(q)||s.id.includes(q)));
   $('#sSymGrid').innerHTML=list.map(s=>'<button data-sym="'+s.id+'" title="'+esc(s.e)+'" class="'+(DS.symId===s.id?'on':'')+'"><svg viewBox="0 0 100 100" width="40" height="40">'+s.s.replace(/\{c\}/g,'#1b1f24')+'</svg><span>'+esc(DS.symLang==='ml'&&s.m?s.m:s.e)+'</span></button>').join('')||'<p class="none">No symbols found</p>';
+}
+/* ---- online symbol search (Iconify: https://iconify.design, open-source icon sets) ---- */
+const ONLINE = {};          /* picked online symbols, by id "set:name" */
+const OL = { api: 'https://api.iconify.design', results: [], cols: {}, state: 'idle', msg: '', timer: null };
+function olQuery(q) {
+  q = q.trim();
+  if (!/[^\x00-\x7f]/.test(q)) return q;                 /* Malayalam word: find it in our own symbol names */
+  const hit = SYM.filter(s => s.m && (s.m.indexOf(q) >= 0 || q.indexOf(s.m) >= 0));
+  return hit.length ? hit[0].e : q;
+}
+async function olSearch() {
+  const raw = $('#sSymQ').value.trim();
+  if (raw.length < 2) { OL.results = []; OL.state = 'idle'; renderOnline(); return; }
+  const seq = ++DS.olSeq;
+  OL.state = 'busy'; renderOnline();
+  try {
+    const r = await fetch(OL.api + '/search?limit=72&query=' + encodeURIComponent(olQuery(raw)));
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    if (seq !== DS.olSeq) return;
+    OL.results = j.icons || []; OL.cols = j.collections || {};
+    OL.state = OL.results.length ? 'ok' : 'none';
+  } catch (_) {
+    if (seq !== DS.olSeq) return;
+    OL.results = []; OL.state = 'err';
+  }
+  renderOnline();
+}
+function olIconUrl(name, color) {
+  const i = name.indexOf(':');
+  return OL.api + '/' + name.slice(0, i) + '/' + name.slice(i + 1) + '.svg' + (color ? '?color=' + encodeURIComponent(color) : '');
+}
+function renderOnline() {
+  const g = $('#sSymGrid'), note = $('#sSymNote');
+  const msg = { idle: 'Type a word (English) to search online icons.', busy: 'Searching…', none: 'No icons found. Try another word.',
+    err: 'Could not reach the online library. Check your internet connection.' }[OL.state];
+  if (OL.state !== 'ok') { g.innerHTML = '<p class="none">' + msg + '</p>'; note.textContent = ''; return; }
+  g.innerHTML = OL.results.map(n => '<button data-ol="' + esc(n) + '" title="' + esc(n) + '" class="' + (DS.symId === 'ol:' + n ? 'on' : '') +
+    '"><img loading="lazy" alt="" width="40" height="40" src="' + olIconUrl(n) + '"><span>' + esc(n.split(':')[1]) + '</span></button>').join('');
+  note.textContent = 'Icons from Iconify open-source sets. Check the licence of a set before publishing.';
+}
+async function olPick(name) {
+  try {
+    const r = await fetch(olIconUrl(name));
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    let t = await r.text();
+    t = t.replace(/currentColor/g, '{c}');
+    const clean = safeSvg(t);
+    if (!clean) throw new Error('bad svg');
+    const id = 'ol:' + name, col = OL.cols[name.split(':')[0]] || {}, lic = col.license && (col.license.spdx || col.license.title) || '';
+    ONLINE[id] = { id, e: name.split(':')[1].replace(/[-_]/g, ' '), s: clean, online: true, lic, set: col.name || '' };
+    DS.symId = id; buildSymGrid();
+    hint(ONLINE[id].e + (lic ? ' (' + lic + ')' : '') + ' — tap the page to place it');
+    if (window.matchMedia && window.matchMedia('(max-width:720px)').matches) openSymPanel(false);
+  } catch (_) { toast('Could not load that icon (offline?)'); }
+}
+function setSymMode(m) {
+  DS.symMode = m;
+  $$('#sSymTabs button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  $('#sSym').classList.toggle('web', m === 'web');
+  $('#sSymQ').placeholder = m === 'web' ? 'Search online icons (English)…' : 'Search symbols…';
+  buildSymGrid();
+  if (m === 'web' && $('#sSymQ').value.trim().length >= 2 && OL.state === 'idle') olSearch();
 }
 function openSymPanel(on){DS.symOpen=on;$('#sSym').classList.toggle('open',on);}
 function setTool(t){
@@ -789,11 +855,16 @@ function wireStudio(){
   $('#sHelp').addEventListener('click',()=>$('#dlgHelp').showModal());
   $('#sFinOk').addEventListener('click',()=>finishDraw());$('#sFinNo').addEventListener('click',cancelDraw);
   $('#sSymX').addEventListener('click',()=>openSymPanel(false));
-  $('#sSymQ').addEventListener('input',buildSymGrid);
+  $('#sSymQ').addEventListener('input',()=>{
+    if(DS.symMode==='web'){clearTimeout(OL.timer);OL.timer=setTimeout(olSearch,450);}else buildSymGrid();
+  });
+  $('#sSymQ').addEventListener('keydown',e=>{if(e.key==='Enter'&&DS.symMode==='web'){clearTimeout(OL.timer);olSearch();}});
+  $('#sSymTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setSymMode(b.dataset.m);});
   $('#sSymAuto').addEventListener('change',e=>{DS.symAuto=e.target.checked;});
   $('#sSymLang').addEventListener('change',e=>{DS.symLang=e.target.value;buildSymGrid();});
   $('#sSymCats').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;DS.symCat=b.dataset.cat;buildSymCats();buildSymGrid();});
   $('#sSymGrid').addEventListener('click',e=>{
+    const ob=e.target.closest('[data-ol]');if(ob){olPick(ob.dataset.ol);return;}
     const b=e.target.closest('[data-sym]');if(!b)return;
     DS.symId=b.dataset.sym;buildSymGrid();
     hint(SYMMAP[DS.symId].e+' — tap the page to place it');

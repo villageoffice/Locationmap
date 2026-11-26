@@ -158,6 +158,31 @@ function lbl(o,cx,y0,studio){
   if(studio){const lw=Math.max(...L.map(l=>l.length))*fs*0.62+8;s+='<rect x="'+f2(cx-lw/2)+'" y="'+f2(y0)+'" width="'+f2(lw)+'" height="'+f2(L.length*fs*1.25+4)+'" fill="transparent"/>';}
   return s;
 }
+/* Online symbols come from a third party (or from a file someone sent you), so their SVG is
+   cleaned before it is drawn: scripts, event handlers and external links are removed. */
+const _safeCache = new Map();
+function safeSvg(str) {
+  if (_safeCache.has(str)) return _safeCache.get(str);
+  let out = '';
+  try {
+    const doc = new DOMParser().parseFromString(str, 'image/svg+xml');
+    const root = doc.documentElement;
+    if (root && root.nodeName.toLowerCase() === 'svg' && !doc.querySelector('parsererror')) {
+      root.querySelectorAll('script,foreignObject,iframe,object,embed,image,use,a,animate,set,animateTransform,animateMotion').forEach(n => n.remove());
+      [root, ...root.querySelectorAll('*')].forEach(n => {
+        [...n.attributes].forEach(a => {
+          const nm = a.name.toLowerCase(), v = a.value;
+          if (nm.indexOf('on') === 0 || nm === 'href' || nm === 'xlink:href' || /javascript:|url\(\s*['"]?https?:|data:text\/html/i.test(v)) n.removeAttribute(a.name);
+        });
+      });
+      root.setAttribute('width', '100'); root.setAttribute('height', '100');
+      root.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      out = new XMLSerializer().serializeToString(root);
+    }
+  } catch (_) { out = ''; }
+  _safeCache.set(str, out);
+  return out;
+}
 function drawShape(o,studio,data){
   const hid=studio?' data-id="'+o.id+'"':'';
   const cx=o.x+o.w/2,cy=o.y+o.h/2;
@@ -184,7 +209,7 @@ function drawShape(o,studio,data){
       return s;
     }
     case 'sym':{
-      const S=SYMMAP[o.sym];if(!S)return '';
+      const S=SYMMAP[o.sym]||(o.osvg?{s:safeSvg(o.osvg)}:null);if(!S)return '';
       let s='<g'+hid+' transform="'+tr+'">';
       if(studio) s+='<rect x="'+f2(o.x)+'" y="'+f2(o.y)+'" width="'+f2(o.w)+'" height="'+f2(o.h)+'" fill="transparent"/>';
       s+='<g transform="translate('+f2(o.x)+' '+f2(o.y)+') scale('+f2(o.w/100)+' '+f2(o.h/100)+')">'+S.s.replace(/\{c\}/g,o.stroke||'#1b1f24')+'</g>';
