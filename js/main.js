@@ -6,6 +6,7 @@
 (async function start() {
   hydrateIcons();
   wireStudio();
+  initUI();
   await loadLibrary();
   let last = null;
   try { last = localStorage.getItem(CURK); } catch (_) { /* ignore */ }
