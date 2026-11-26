@@ -51,11 +51,21 @@ JSDOM.fromFile(root+'/index.html',{runScripts:'dangerously',resources:'usable',p
   const svgEl=$('#sSvg');svgEl.getBoundingClientRect=()=>({left:0,top:0,width:800,height:500,right:800,bottom:500});
   const DS=w.App.DS;DS.view={x:0,y:0,z:1};
   const mk=(t,x,y,o)=>{const e=new w.MouseEvent(t,Object.assign({clientX:x,clientY:y,bubbles:true,cancelable:true},o||{}));e.pointerId=1;return e;};
-  $('[data-tool="nh"]').click();
+  $('[data-tool="custom"]').click();
   svgEl.dispatchEvent(mk('pointerdown',100,100));svgEl.dispatchEvent(mk('pointermove',400,100));svgEl.dispatchEvent(mk('pointerup',400,100));
   $('[data-tool="rail"]').click();
   svgEl.dispatchEvent(mk('pointerdown',100,200));svgEl.dispatchEvent(mk('pointermove',400,260));svgEl.dispatchEvent(mk('pointerup',400,260));
   ok(DS.data.objs.length===2,'drew road + rail');
+  ok(!$('[data-tool="nh"]')&&!$('[data-tool="sh"]')&&!$('[data-tool="pwd"]')&&!$('[data-tool="pnch"]'),'NH/SH/PWD/Panchayat are no longer separate tools');
+  ok(!!$('[data-tool="mud"]')&&!!$('[data-tool="foot"]'),'dirt road and path tools are kept');
+  const rt=$('#cRoadType');DS.sel=[DS.data.objs[0].id];w.App.setSel&&0;
+  rt.value='nh';rt.dispatchEvent(new w.Event('change'));
+  ok(DS.data.objs[0].rw===16&&DS.data.objs[0].rtype==='nh','choosing NH sets the width to 16');
+  rt.value='pnch';rt.dispatchEvent(new w.Event('change'));
+  ok(DS.data.objs[0].rw===7,'choosing Panchayat sets the width to 7');
+  const rsvg=w.App.buildSVG(DS.data,{px:1});
+  const railPart=rsvg.slice(rsvg.indexOf('stroke-width="9.8"'));
+  ok(/stroke-width="9.8"[^>]*\/>.*stroke-width="6.2"[^>]*\/>.*stroke-dasharray=/.test(rsvg.replace(/\n/g,'')),'railway = two rails + cross ties');
   // symbols panel
   $('[data-tool="sym"]').click();
   ok($('#sSym').classList.contains('open')&&$$('#sSymGrid [data-sym]').length>100,'symbol panel lists '+$$('#sSymGrid [data-sym]').length);
