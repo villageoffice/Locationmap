@@ -83,17 +83,19 @@ function selFrame(){
   return {cx:(b.x0+b.x1)/2,cy:(b.y0+b.y1)/2,w:Math.max(12,w),h:Math.max(12,h),rot:0};
 }
 function handlesHTML(F,z){
-  const hs=(COARSE?18:10)/z,sw=f2(1.5/z);
+  const hs=(COARSE?9:7)/z,hit=(COARSE?22:12)/z,sw=f2(1.2/z);
   const P=(lx,ly)=>rotPt(F.cx+lx,F.cy+ly,F.cx,F.cy,F.rot);
   const hw=F.w/2,hh=F.h/2;
   let s='<polygon points="'+[P(-hw,-hh),P(hw,-hh),P(hw,hh),P(-hw,hh)].map(p=>f2(p[0])+','+f2(p[1])).join(' ')+'" fill="none" stroke="#1a73e8" stroke-width="'+sw+'"/>';
   [['nw',-hw,-hh,'nwse'],['n',0,-hh,'ns'],['ne',hw,-hh,'nesw'],['e',hw,0,'ew'],['se',hw,hh,'nwse'],['s',0,hh,'ns'],['sw',-hw,hh,'nesw'],['w',-hw,0,'ew']].forEach(a=>{
     const p=P(a[1],a[2]);
-    s+='<rect data-h="'+a[0]+'" x="'+f2(p[0]-hs/2)+'" y="'+f2(p[1]-hs/2)+'" width="'+f2(hs)+'" height="'+f2(hs)+'" fill="#fff" stroke="#1a73e8" stroke-width="'+sw+'" pointer-events="all" style="cursor:'+a[3]+'-resize"/>';
+    s+='<rect data-h="'+a[0]+'" x="'+f2(p[0]-hit/2)+'" y="'+f2(p[1]-hit/2)+'" width="'+f2(hit)+'" height="'+f2(hit)+'" fill="transparent" pointer-events="all" style="cursor:'+a[3]+'-resize"/>';
+    s+='<rect x="'+f2(p[0]-hs/2)+'" y="'+f2(p[1]-hs/2)+'" width="'+f2(hs)+'" height="'+f2(hs)+'" fill="#fff" stroke="#1a73e8" stroke-width="'+sw+'" pointer-events="none"/>';
   });
   const rp=P(0,-hh-32/z),tp=P(0,-hh);
   s+='<line x1="'+f2(tp[0])+'" y1="'+f2(tp[1])+'" x2="'+f2(rp[0])+'" y2="'+f2(rp[1])+'" stroke="#1a73e8" stroke-width="'+sw+'"/>';
-  s+='<circle data-h="rot" cx="'+f2(rp[0])+'" cy="'+f2(rp[1])+'" r="'+f2(hs*0.65)+'" fill="#1a73e8" stroke="#fff" stroke-width="'+sw+'" pointer-events="all" style="cursor:grab"/>';
+  s+='<circle data-h="rot" cx="'+f2(rp[0])+'" cy="'+f2(rp[1])+'" r="'+f2(hit/2)+'" fill="transparent" pointer-events="all" style="cursor:grab"/>';
+  s+='<circle cx="'+f2(rp[0])+'" cy="'+f2(rp[1])+'" r="'+f2(hs*0.6)+'" fill="#1a73e8" stroke="#fff" stroke-width="'+sw+'" pointer-events="none"/>';
   return s;
 }
 function renderOverlay(){
