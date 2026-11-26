@@ -1,11 +1,11 @@
 {
   "name": "doc-drawing-studio",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Document editor with a built-in location-map drawing studio. Static site, no build step.",
   "scripts": {
     "start": "python3 -m http.server 8080",
-    "test": "node tests/smoke.test.js"
+    "test": "node tests/smoke.test.js && node tests/online.test.js"
   },
   "devDependencies": {
     "fake-indexeddb": "^6.0.0",
