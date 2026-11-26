@@ -12,7 +12,7 @@ JSDOM.fromFile(root+'/index.html',{runScripts:'dangerously',resources:'usable',p
   w.matchMedia=()=>({matches:false});w.confirm=()=>true;
   w.fetch=async u=>{
     if(/\/search\?/.test(u)){w.__q=decodeURIComponent(u.split('query=')[1]);return {ok:true,json:async()=>({icons:['mdi:bridge','tabler:bridge'],collections:{mdi:{name:'Material Design Icons',license:{spdx:'Apache-2.0'}}}})};}
-    if(/\.svg/.test(u))return {ok:true,text:async()=>SVG};
+    if(/\.json\?icons=/.test(u)){const p=u.split('/').pop().split('.json')[0];w.__j=(w.__j||[]).concat(u);const names=decodeURIComponent(u.split('icons=')[1]).split(',');const icons={};names.forEach(n=>{icons[n]={body:'<path fill="currentColor" d="M4 4h16v16H4z" onclick="alert(1)"/><script>alert(2)</script>'};});return {ok:true,json:async()=>({prefix:p,icons,width:24,height:24})};}
     return {ok:false};
   };
  }}).then(async dom=>{
@@ -25,6 +25,9 @@ JSDOM.fromFile(root+'/index.html',{runScripts:'dangerously',resources:'usable',p
   await wait(800);
   const items=w.document.querySelectorAll('#sSymGrid [data-ol]');
   ok(items.length===2,'online results listed ('+items.length+')');
+  ok(items[0].querySelector('svg')&&!items[0].querySelector('img'),'previews are inline drawings, not image files');
+  ok(items[0].innerHTML.indexOf('script')<0&&items[0].innerHTML.indexOf('onclick')<0,'preview is cleaned');
+  ok((w.__j||[]).length===2,'one JSON request per icon set ('+(w.__j||[]).length+')');
   $('#sSymQ').value='പാലം';$('#sSymQ').dispatchEvent(new w.Event('input'));await wait(800);
   ok(w.__q==='Bridge','Malayalam word mapped to English ('+w.__q+')');
   w.document.querySelector('#sSymGrid [data-ol]').click();await wait(300);
