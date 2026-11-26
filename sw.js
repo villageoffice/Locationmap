@@ -1,6 +1,6 @@
 /* Offline support: app files are cached on first visit and refreshed in the background.
    Bump VERSION when you publish a new release. */
-const VERSION = 'docstudio-1.2.0';
+const VERSION = 'docstudio-1.2.1';
 const CORE = ['./', 'index.html', 'css/style.css', 'js/icons.js', 'js/store.js', 'js/symbols.js', 'js/symbols-pictos.js',
   'js/core.js', 'js/studio.js', 'js/editor.js', 'js/files.js', 'js/ui.js', 'js/main.js', 'vendor/qrcode.js', 'manifest.webmanifest', 'icons/icon.svg'];
 
