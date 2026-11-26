@@ -1,269 +1,359 @@
 <!DOCTYPE html>
-<html lang="ml">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Career & Course Guidance Finder (ChatGPT Version)</title>
-    <style>
-        :root {
-            --primary-color: #10a37f; /* ChatGPT Green */
-            --secondary-color: #1a73e8;
-            --bg-color: #f4f7f6;
-            --text-color: #333;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 700px;
-        }
-
-        h2 {
-            text-align: center;
-            color: #10a37f;
-            margin-bottom: 30px;
-            font-size: 28px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #555;
-        }
-
-        input[type="text"], select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 15px;
-            transition: border-color 0.3s ease;
-        }
-
-        input[type="text"]:focus, select:focus {
-            border-color: #10a37f;
-            outline: none;
-        }
-
-        /* പ്രധാന ആക്ഷൻ ബട്ടൺ */
-        .main-btn {
-            background: linear-gradient(135deg, #10a37f, #0d8a6b);
-            color: white;
-            border: none;
-            padding: 15px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .main-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(0,0,0,0.2);
-        }
-
-        .result-box {
-            margin-top: 30px;
-            background-color: #f9f9f9;
-            border-left: 5px solid #10a37f;
-            padding: 20px;
-            border-radius: 5px;
-            display: none;
-        }
-
-        .result-box h3 {
-            margin-top: 0;
-            color: #10a37f;
-        }
-
-        .prompt-text {
-            background-color: #eaeaea;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: monospace;
-            white-space: pre-wrap;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            max-height: 180px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-        }
-
-        .chatgpt-open-btn {
-            background-color: #10a37f;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .chatgpt-open-btn:hover {
-            background-color: #0d8a6b;
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b6e4f">
+<meta name="description" content="Document editor with a built-in drawing studio for location maps, sketches and survey diagrams. Works offline in your browser.">
+<title>Doc &amp; Drawing Studio</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;600&family=Chilanka&family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Serif+Malayalam:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=1.0.0">
 </head>
 <body>
 
-<div class="container">
-    <h2>ChatGPT Career & Course Advisor 🎯</h2>
-    <form id="careerForm">
-        <div class="form-group">
-            <label>1. നിങ്ങളുടെ നിലവിലെ വിദ്യാഭ്യാസ യോഗ്യത:</label>
-            <input type="text" id="q1" placeholder="ഉദാ: Plus Two, BCom, BTech..." required>
-        </div>
+<!-- ============================ document ============================ -->
+<header id="top">
+  <input id="title" value="" placeholder="Untitled document" aria-label="Document title">
+  <span id="saveState" aria-live="polite"></span>
+  <button id="saveBtn" class="ic" title="Save (Ctrl+S)" aria-label="Save"><i data-i="save"></i></button>
+  <button id="openBtn" class="ic" title="Open file (Ctrl+O)" aria-label="Open file"><i data-i="open"></i></button>
+  <button id="histBtn" class="ic" title="Version history" aria-label="Version history"><i data-i="history"></i></button>
+  <button id="drawBtn" class="pill" title="Insert a drawing / location map"><i data-i="map"></i><span>Drawing</span></button>
+  <button id="menuBtn" class="ic" aria-label="Menu" title="Menu"><i data-i="menu"></i></button>
+  <div id="menu" hidden>
+    <button data-act="new"><i data-i="filenew"></i>New document</button>
+    <button data-act="newmap"><i data-i="map"></i>New location map</button>
+    <hr>
+    <button data-act="library"><i data-i="library"></i>My documents…</button>
+    <button data-act="open"><i data-i="open"></i>Open file…<kbd>Ctrl+O</kbd></button>
+    <button data-act="save"><i data-i="save"></i>Save<kbd>Ctrl+S</kbd></button>
+    <button data-act="savefile"><i data-i="download"></i>Save as file…<kbd>Ctrl+Shift+S</kbd></button>
+    <button data-act="history"><i data-i="history"></i>Version history…</button>
+    <hr>
+    <button data-act="doc"><i data-i="download"></i>Export Word (.doc)</button>
+    <button data-act="html"><i data-i="download"></i>Export HTML</button>
+    <button data-act="txt"><i data-i="download"></i>Export text (.txt)</button>
+    <button data-act="print"><i data-i="print"></i>Print / save as PDF</button>
+    <button data-act="copy"><i data-i="copy"></i>Copy all text</button>
+    <hr>
+    <button data-act="find"><i data-i="find"></i>Find &amp; replace</button>
+    <button data-act="help"><i data-i="help"></i>Help</button>
+    <hr>
+    <button data-act="delete" class="danger"><i data-i="trash"></i>Delete this document</button>
+  </div>
+</header>
 
-        <div class="form-group">
-            <label>2. ഏറ്റവും ഇഷ്ടപ്പെട്ട പഠനവിഷയങ്ങൾ:</label>
-            <input type="text" id="q2" placeholder="ഉദാ: കണക്ക്, കമ്പ്യൂട്ടർ, ആർട്സ്, സയൻസ്..." required>
-        </div>
-
-        <div class="form-group">
-            <label>3. പ്രധാന വിനോദങ്ങളും താല്പര്യങ്ങളും (Hobbies):</label>
-            <input type="text" id="q3" placeholder="ഉദാ: വായന, ഫോട്ടോഗ്രഫി, യാത്രകൾ...">
-        </div>
-
-        <div class="form-group">
-            <label>4. നിങ്ങളുടെ പ്രധാന കഴിവുകൾ (Skills):</label>
-            <input type="text" id="q4" placeholder="ഉദാ: കമ്മ്യൂണിക്കേഷൻ, കോഡിംഗ്, പ്രോബ്ലം സോൾവിങ്..." required>
-        </div>
-
-        <div class="form-group">
-            <label>5. താല്പര്യമുള്ള ജോലി സാഹചര്യം:</label>
-            <select id="q5">
-                <option value="ആഫീസ് ജോലി (Corporate Office)">ആഫീസ് ജോലി (Corporate Office)</option>
-                <option value="വർക്ക് ഫ്രം ഹോം (Remote/WFH)">വർക്ക് ഫ്രം ഹോം (Remote/WFH)</option>
-                <option value="ഔっとഡോർ ഫീൽഡ് വർക്ക് (Field work/Travel)">ഔട്ട്ഡോർ ഫീൽഡ് വർക്ക് (Field work/Travel)</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>6. ജോലിയുടെ സ്വഭാവം എങ്ങനെ ആയിരിക്കണം?</label>
-            <select id="q6">
-                <option value="സാങ്കേതിക താല്പര്യമുള്ളവ (Technical)">സാങ്കേതിക താല്പര്യമുള്ളവ (Technical)</option>
-                <option value="സർഗ്ഗാത്മകത ഉള്ളവ (Creative)">സർഗ്ഗാത്മകത ഉള്ളവ (Creative)</option>
-                <option value="ആളുകളുമായി ഇടപെടുന്നവ (People Management/Sales)">ആളുകളുമായി ഇടപെടുന്നവ (People Management/Sales)</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>7. കോഴ്സുകൾക്കായുള്ള ബഡ്ജറ്റ്:</label>
-            <select id="q7">
-                <option value="കുറഞ്ഞ ചിലവിലുള്ളവ (Low Budget / Govt Colleges)">കുറഞ്ഞ ചിലവിലുള്ളവ (Low Budget)</option>
-                <option value="ഇടത്തരം ബഡ്ജറ്റ് (Medium Budget)">ഇടത്തരം ബഡ്ജറ്റ് (Medium Budget)</option>
-                <option value="ഉയർന്ന ബഡ്ജറ്റ് (High Budget / Private / Abroad)">ഉയർന്ന ബഡ്ജറ്റ് (High Budget)</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>8. മറ്റ് സ്ഥലങ്ങളിലേക്ക് മാറാൻ താല്പര്യമുണ്ടോ?</label>
-            <select id="q8">
-                <option value="കേരളത്തിനുള്ളിൽ മാത്രം">കേരളത്തിനുള്ളിൽ മാത്രം</option>
-                <option value="ഇന്ത്യയിലെ പ്രമുഖ നഗരങ്ങൾ (Bangalore, Chennai etc.)">ഇന്ത്യയിലെ പ്രമുഖ നഗരങ്ങൾ</option>
-                <option value="വിദേശത്ത് പോകാൻ താല്പര്യമുണ്ട് (Abroad)">വിദേശത്ത് പോകാൻ താല്പര്യമുണ്ട്</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>9. ജോലി രീതി ഏതാണ് താല്പര്യം?</label>
-            <select id="q9">
-                <option value="സ്ഥിരതയുള്ള 9-to-5 ജോലി">സ്ഥിരതയുള്ള 9-to-5 ജോലി</option>
-                <option value="ഫ്രീലാൻസിങ് / സ്വന്തം ബിസിനസ്സ്">ഫ്രീലാൻസിങ് / സ്വന്തം ബിസിനസ്സ്</option>
-            </select>
-        </div>
-
-        <button type="button" class="main-btn" onclick="sendToChatGPT()">Open & Run in ChatGPT 🚀</button>
-    </form>
-
-    <div class="result-box" id="resultBox">
-        <h3>തയ്യാറാക്കിയ പ്രോംപ്റ്റ്:</h3>
-        <div class="prompt-text" id="promptOutput"></div>
-        <button class="chatgpt-open-btn" onclick="openChatGPTDirect()">
-            🤖 ChatGPT വീണ്ടും തുറക്കാൻ ഇവിടെ ക്ലിക്ക് ചെയ്യുക
-        </button>
-    </div>
+<div id="tools">
+  <div class="grp">
+    <button data-cmd="undo" title="Undo"><i data-i="undo"></i></button>
+    <button data-cmd="redo" title="Redo"><i data-i="redo"></i></button>
+  </div>
+  <div class="grp">
+    <select id="blockSel" title="Paragraph style">
+      <option value="p">Normal</option>
+      <option value="h1">Heading 1</option>
+      <option value="h2">Heading 2</option>
+      <option value="h3">Heading 3</option>
+      <option value="blockquote">Quote</option>
+    </select>
+    <select id="fontSel" title="Font">
+      <option value="'Noto Sans Malayalam',sans-serif">Noto Sans</option>
+      <option value="'Noto Serif Malayalam',serif">Noto Serif</option>
+      <option value="'Manjari',sans-serif">Manjari</option>
+      <option value="'Anek Malayalam',sans-serif">Anek</option>
+      <option value="'Chilanka',cursive">Chilanka</option>
+      <option value="Arial,sans-serif">Arial</option>
+      <option value="'Times New Roman',serif">Times New Roman</option>
+    </select>
+    <select id="sizeSel" title="Font size">
+      <option>12</option><option>14</option><option>16</option><option>18</option><option selected>20</option><option>24</option><option>28</option><option>32</option><option>40</option><option>56</option>
+    </select>
+    <select id="lhSel" title="Line spacing">
+      <option value="1.3">1.3</option><option value="1.6">1.6</option><option value="1.9" selected>1.9</option><option value="2.2">2.2</option>
+    </select>
+  </div>
+  <div class="grp">
+    <button data-cmd="bold" title="Bold (Ctrl+B)"><i data-i="bold"></i></button>
+    <button data-cmd="italic" title="Italic (Ctrl+I)"><i data-i="italic"></i></button>
+    <button data-cmd="underline" title="Underline (Ctrl+U)"><i data-i="underline"></i></button>
+    <button data-cmd="strikeThrough" title="Strikethrough"><i data-i="strike"></i></button>
+    <input type="color" id="foreCol" value="#000000" title="Text colour">
+    <input type="color" id="backCol" value="#ffff00" title="Highlight colour">
+  </div>
+  <div class="grp">
+    <button data-cmd="justifyLeft" title="Align left"><i data-i="alignL"></i></button>
+    <button data-cmd="justifyCenter" title="Centre"><i data-i="alignC"></i></button>
+    <button data-cmd="justifyRight" title="Align right"><i data-i="alignR"></i></button>
+    <button data-cmd="justifyFull" title="Justify"><i data-i="alignJ"></i></button>
+  </div>
+  <div class="grp">
+    <button data-cmd="insertUnorderedList" title="Bullet list"><i data-i="listUl"></i></button>
+    <button data-cmd="insertOrderedList" title="Numbered list"><i data-i="listOl"></i></button>
+    <button data-cmd="outdent" title="Decrease indent"><i data-i="outdent"></i></button>
+    <button data-cmd="indent" title="Increase indent"><i data-i="indent"></i></button>
+  </div>
+  <div class="grp">
+    <button data-x="drawing" class="hl" title="Insert drawing / location map"><i data-i="map"></i></button>
+    <button data-x="image" title="Insert image"><i data-i="image"></i></button>
+    <button data-x="link" title="Insert link"><i data-i="link"></i></button>
+    <button data-x="table" title="Insert table"><i data-i="table"></i></button>
+    <button data-x="pb" title="Page break"><i data-i="pagebreak"></i></button>
+    <button data-cmd="insertHorizontalRule" title="Horizontal line"><i data-i="hr"></i></button>
+    <button data-x="date" title="Insert today's date"><i data-i="calendar"></i></button>
+    <button data-cmd="removeFormat" title="Clear formatting"><i data-i="clearfmt"></i></button>
+  </div>
+  <div class="grp" style="border:0">
+    <button data-act="find" title="Find &amp; replace"><i data-i="find"></i></button>
+  </div>
 </div>
 
-<script>
-    let finalPrompt = "";
+<div id="findbar" hidden>
+  <input id="fq" placeholder="Find">
+  <input id="fr" placeholder="Replace with">
+  <button id="fNext">Next</button>
+  <button id="fOne">Replace</button>
+  <button id="fAll">Replace all</button>
+  <button id="fClose" aria-label="Close">&#10005;</button>
+  <span id="fMsg"></span>
+</div>
 
-    function sendToChatGPT() {
-        const q1 = document.getElementById('q1').value;
-        const q2 = document.getElementById('q2').value;
-        const q3 = document.getElementById('q3').value;
-        const q4 = document.getElementById('q4').value;
-        const q5 = document.getElementById('q5').value;
-        const q6 = document.getElementById('q6').value;
-        const q7 = document.getElementById('q7').value;
-        const q8 = document.getElementById('q8').value;
-        const q9 = document.getElementById('q9').value;
+<main>
+  <div id="editor" class="page empty" contenteditable="true" spellcheck="false" data-ph="Start typing…"><p><br></p></div>
+</main>
 
-        if(!q1 || !q2 || !q4) {
-            alert("ദയവായി പ്രധാന ചോദ്യങ്ങൾക്ക് മറുപടി നൽകുക!");
-            return;
-        }
+<div id="figBar" hidden>
+  <button data-f="edit" title="Edit drawing"><i data-i="edit"></i></button>
+  <button data-f="l" title="Align left"><i data-i="alignL"></i></button>
+  <button data-f="c" title="Centre"><i data-i="alignC"></i></button>
+  <button data-f="r" title="Align right"><i data-i="alignR"></i></button>
+  <button data-f="minus" title="Smaller"><i data-i="zoomOut"></i></button>
+  <button data-f="plus" title="Larger"><i data-i="zoomIn"></i></button>
+  <button data-f="del" title="Delete"><i data-i="trash"></i></button>
+</div>
 
-        finalPrompt = `ഹലോ ChatGPT, എന്റെ പ്രൊഫൈലിന് അനുയോജ്യമായ ഏറ്റവും മികച്ച 3 ജോലികളും (Careers) അവയിലേക്ക് എത്തിച്ചേരാൻ പഠിക്കേണ്ട 3 മികച്ച കോഴ്സുകളും (Courses) നിർദ്ദേശിക്കാമോ? എന്റെ വിവരങ്ങൾ താഴെ നൽകുന്നു:
+<footer id="status"><span id="wc"></span><span id="ms">Auto-saved in this browser</span></footer>
+<div id="toast" role="status"></div>
+<input type="file" id="fileIn" accept=".json,.txt,.html,.htm,application/json,text/plain,text/html" hidden>
+<input type="file" id="imgIn" accept="image/*" hidden>
+<input type="file" id="sImgIn" accept="image/*" hidden>
+<input type="file" id="dfIn" accept=".json,application/json" hidden>
+<svg id="sMeasure" width="10" height="10" style="position:absolute;left:-9999px;top:0;visibility:hidden"><text id="sMT" style="white-space:pre"></text></svg>
 
-1. നിലവിലെ വിദ്യാഭ്യാസം: ${q1}
-2. ഇഷ്ടവിഷയങ്ങൾ: ${q2}
-3. വിനോദങ്ങൾ/താല്പര്യങ്ങൾ: ${q3}
-4. പ്രധാന കഴിവുകൾ: ${q4}
-5. ആഗ്രഹിക്കുന്ന ജോലി സാഹചര്യം: ${q5}
-6. ജോലിയുടെ സ്വഭാവം: ${q6}
-7. കോഴ്സ് ബഡ്ജറ്റ്: ${q7}
-8. താല്പര്യമുള്ള സ്ഥലം: ${q8}
-9. കരിയർ രീതി: ${q9}
+<!-- ============================ dialogs ============================ -->
+<dialog id="dlgOpen">
+  <div class="dh"><span>My documents</span><button class="ic" onclick="this.closest('dialog').close()" aria-label="Close"><i data-i="close"></i></button></div>
+  <div class="db">
+    <input id="libQ" class="search" type="search" placeholder="Search documents">
+    <div id="docList"></div>
+  </div>
+</dialog>
 
-ദയവായി കരിയർ സാധ്യതകളും, മികച്ച കോഴ്സുകളും, അവ പഠിക്കാൻ പറ്റിയ സ്ഥാപനങ്ങളും മലയാളത്തിൽ വിശദമായി പറഞ്ഞു തരിക.`;
+<dialog id="dlgHist">
+  <div class="dh"><span>Version history</span><button class="ic" onclick="this.closest('dialog').close()" aria-label="Close"><i data-i="close"></i></button></div>
+  <div class="db">
+    <p class="note">Restore points of this document. They are created automatically while you work. Restoring never loses your current text.</p>
+    <div class="actions"><button class="btn primary" id="histNow"><i data-i="plus"></i>Save version now</button></div>
+    <div id="histList"></div>
+  </div>
+</dialog>
 
-        document.getElementById('promptOutput').innerText = finalPrompt;
-        document.getElementById('resultBox').style.display = 'block';
+<dialog id="dlgHelp">
+  <div class="dh"><span>Help</span><button class="ic" onclick="this.closest('dialog').close()" aria-label="Close"><i data-i="close"></i></button></div>
+  <div class="db">
+    <h4>Document</h4>
+    <ul>
+      <li>Type with your normal keyboard (Malayalam keyboard, voice typing or any language).</li>
+      <li><b>Drawing</b> button: opens the drawing studio. When you press <b>Insert</b> the drawing is placed in the page. Tap it to edit, resize, align or delete; double-click to re-open the studio.</li>
+      <li><b>Menu → New location map</b>: starts a full A4 sketch page straight away.</li>
+    </ul>
+    <h4>Saving</h4>
+    <ul>
+      <li><b>Auto-save</b>: everything is saved in this browser as you type.</li>
+      <li><b>Save</b> (Ctrl+S): save now. <b>Save as file</b> (Ctrl+Shift+S): download a <code>.docstudio.json</code> file that keeps drawings editable. <b>Open file</b> (Ctrl+O) opens it again, also on another device.</li>
+      <li><b>Version history</b>: automatic restore points. If the drawing studio is closed by accident, you are asked to recover the drawing next time.</li>
+    </ul>
+    <h4>Drawing studio</h4>
+    <ul>
+      <li>Pick a tool on the left (bottom on phones) and drag. For roads and polylines tap each bend, then double-tap / Enter / tick to finish.</li>
+      <li><b>Bend</b> rounds the corners (set R). <b>Centre line</b> adds a dashed middle line on roads.</li>
+      <li><b>Select</b>: tap, drag a box, or Shift/Ctrl+tap for many. Blue handles resize, the round handle rotates. <b>Group</b> keeps items together.</li>
+      <li>Double-tap: edit text, symbol name, or the points of a line.</li>
+      <li>Keys: V select · H pan · T text · E erase · R rotate 90° · Ctrl+Z / Y undo / redo · Ctrl+D duplicate · Ctrl+G group · Ctrl+A select all · Del delete · Space+drag pan · Alt = no snap · Shift = straight / 45°.</li>
+      <li>Zoom with the mouse wheel or a two-finger pinch.</li>
+    </ul>
+  </div>
+</dialog>
 
-        // പ്രോംപ്റ്റ് ബാക്കപ്പ് ആയി ക്ലിപ്ബോർഡിലേക്കും കോപ്പി ചെയ്യുന്നു
-        navigator.clipboard.writeText(finalPrompt);
+<dialog id="dlgPage">
+  <div class="dh"><span>Page setup</span><button class="ic" onclick="this.closest('dialog').close()" aria-label="Close"><i data-i="close"></i></button></div>
+  <div class="db">
+    <div class="row" id="pgPresets">
+      <button data-p="a4">A4</button><button data-p="a3">A3</button><button data-p="a5">A5</button>
+      <button data-p="std">3:2</button><button data-p="wide">16:9</button><button data-p="sq">Square</button>
+    </div>
+    <div class="row" id="pgOrient">
+      <button data-o="p">Portrait</button><button data-o="l">Landscape</button>
+    </div>
+    <label>Width <input type="number" id="pgW" min="100" max="6000"></label>
+    <label>Height <input type="number" id="pgH" min="100" max="6000"></label>
+    <label>Background <input type="color" id="pgBg"></label>
+    <label><input type="checkbox" id="pgFrameChk"> Border</label>
+    <div class="row">
+      <button id="pgApply" class="btn primary">Apply</button>
+      <button id="pgCrop" class="btn">Fit page to content</button>
+      <button id="pgImg" class="btn"><i data-i="image"></i>Add background image (to trace)</button>
+    </div>
+  </div>
+</dialog>
 
-        // ChatGPT ഡയറക്ട് ഓപ്പണിങ് ലിങ്ക് റൺ ചെയ്യുന്നു
-        openChatGPTDirect();
-    }
+<dialog id="dlgDFile">
+  <div class="dh"><span>Drawing file</span><button class="ic" onclick="this.closest('dialog').close()" aria-label="Close"><i data-i="close"></i></button></div>
+  <div class="db">
+    <p class="note">Your drawing is also auto-saved as a draft while you work.</p>
+    <div class="col">
+      <button id="dfOpen" class="btn"><i data-i="open"></i>Open drawing file…</button>
+      <button id="dfSave" class="btn"><i data-i="save"></i>Save drawing file</button>
+      <button id="dfPng" class="btn"><i data-i="image"></i>Export PNG image</button>
+      <button id="dfSvg" class="btn"><i data-i="download"></i>Export SVG</button>
+      <button id="dfRevert" class="btn"><i data-i="history"></i>Revert to how it was when opened</button>
+      <button id="dfClear" class="btn danger"><i data-i="trash"></i>Clear drawing</button>
+    </div>
+  </div>
+</dialog>
 
-    function openChatGPTDirect() {
-        // ChatGPT-ലേക്ക് ഡാറ്റ നേരിട്ട് കൈമാറാനുള്ള ഒഫീഷ്യൽ ഇൻ്റഗ്രേഷൻ ലിങ്ക്
-        const chatGPTUrl = "https://chatgpt.com/?q=" + encodeURIComponent(finalPrompt);
-        window.open(chatGPTUrl, "_blank");
-    }
-</script>
+<!-- ======================== drawing studio ======================== -->
+<div id="studio">
+  <div id="sTop">
+    <button class="ic" id="sCancel" title="Close without inserting" aria-label="Close"><i data-i="close"></i></button>
+    <b class="ttl">Drawing</b>
+    <span class="sp"></span>
+    <button class="ic" id="sUndo" title="Undo (Ctrl+Z)"><i data-i="undo"></i></button>
+    <button class="ic" id="sRedo" title="Redo (Ctrl+Y)"><i data-i="redo"></i></button>
+    <button class="ic" id="sZoomOut" title="Zoom out"><i data-i="zoomOut"></i></button><span id="sZoomLbl">100%</span><button class="ic" id="sZoomIn" title="Zoom in"><i data-i="zoomIn"></i></button>
+    <button class="ic" id="sFit" title="Fit page"><i data-i="fit"></i></button>
+    <button class="ic" id="sGrid" title="Grid"><i data-i="grid"></i></button>
+    <button class="ic on" id="sSnap" title="Snap to points"><i data-i="magnet"></i></button>
+    <button class="ic" id="sOrient" title="Portrait / landscape"><i data-i="orient"></i></button>
+    <button class="ic" id="sPage" title="Page setup"><i data-i="page"></i></button>
+    <button class="ic" id="sFile" title="Drawing file: open, save, export"><i data-i="save"></i></button>
+    <button class="ic" id="sHelp" title="Help"><i data-i="help"></i></button>
+    <button class="pill" id="sDone"><i data-i="check"></i><span>Insert</span></button>
+  </div>
+  <div id="sCtx">
+    <div class="cg" data-for="stroke">
+      <label title="Line colour"><i data-i="edit"></i><input type="color" id="cStroke" value="#1b1f24"></label>
+      <select id="cSW" title="Line width"><option>0.5</option><option>1</option><option>1.5</option><option>2</option><option>3</option><option>4</option><option>6</option><option>8</option><option>12</option></select>
+      <select id="cDash" title="Line style"><option value="">Solid</option><option value="dash">Dashed</option><option value="dot">Dotted</option><option value="dd">Dash-dot</option></select>
+    </div>
+    <div class="cg" data-for="fill">
+      <button id="cFillOn" title="Fill"><i data-i="fill"></i></button>
+      <input type="color" id="cFill" value="#fff3b0" title="Fill colour">
+    </div>
+    <div class="cg" data-for="road">
+      <label title="Road width">Width<input type="number" id="cRW" min="2" max="120" step="1"></label>
+      <button id="cCenter" title="Dashed centre line"><i data-i="centerline"></i><span>Centre line</span></button>
+    </div>
+    <div class="cg" data-for="bend">
+      <button id="cBend" title="Round the corners"><i data-i="bend"></i><span>Bend</span></button>
+      <label title="Bend radius">R<input type="number" id="cR" min="0" max="300" step="2"></label>
+    </div>
+    <div class="cg" data-for="text">
+      <select id="cFont">
+        <option value="'Noto Sans Malayalam',sans-serif">Noto Sans</option>
+        <option value="'Noto Serif Malayalam',serif">Noto Serif</option>
+        <option value="'Manjari',sans-serif">Manjari</option>
+        <option value="'Anek Malayalam',sans-serif">Anek</option>
+        <option value="'Chilanka',cursive">Chilanka</option>
+        <option value="Arial,sans-serif">Arial</option>
+      </select>
+      <select id="cFS"><option>10</option><option>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>24</option><option>28</option><option>32</option><option>40</option><option>56</option><option>72</option></select>
+      <button data-t="bold" title="Bold"><i data-i="bold"></i></button>
+      <button data-t="italic" title="Italic"><i data-i="italic"></i></button>
+      <button data-t="ul" title="Underline"><i data-i="underline"></i></button>
+      <button data-al="left" title="Align left"><i data-i="alignL"></i></button>
+      <button data-al="center" title="Centre"><i data-i="alignC"></i></button>
+      <button data-al="right" title="Align right"><i data-i="alignR"></i></button>
+    </div>
+    <div class="cg" data-for="sel">
+      <button data-a="rotL" title="Rotate 90° left"><i data-i="rotCcw"></i></button>
+      <button data-a="rotR" title="Rotate 90° right"><i data-i="rotCw"></i></button>
+      <button data-a="rot180" title="Rotate 180°">180°</button>
+      <button data-a="rotN" title="Rotate by angle…"><i data-i="angle"></i></button>
+    </div>
+    <div class="cg" data-for="sel">
+      <button data-a="group" title="Group (Ctrl+G)"><i data-i="group"></i><span>Group</span></button>
+      <button data-a="ungroup" title="Ungroup (Ctrl+Shift+G)"><i data-i="ungroup"></i><span>Ungroup</span></button>
+      <button data-a="nodes" title="Edit points"><i data-i="nodes"></i><span>Points</span></button>
+    </div>
+    <div class="cg" data-for="sel">
+      <button data-a="front" title="Bring to front"><i data-i="front"></i></button>
+      <button data-a="up" title="Forward"><i data-i="up"></i></button>
+      <button data-a="down" title="Backward"><i data-i="down"></i></button>
+      <button data-a="back" title="Send to back (under roads)"><i data-i="back"></i></button>
+    </div>
+    <div class="cg" data-for="sel">
+      <button data-al2="l" title="Align to page left"><i data-i="alignPL"></i></button>
+      <button data-al2="c" title="Centre horizontally on page"><i data-i="alignPC"></i></button>
+      <button data-al2="r" title="Align to page right"><i data-i="alignPR"></i></button>
+      <button data-al2="t" title="Align to page top"><i data-i="alignPT"></i></button>
+      <button data-al2="m" title="Centre vertically on page"><i data-i="alignPM"></i></button>
+      <button data-al2="b" title="Align to page bottom"><i data-i="alignPB"></i></button>
+    </div>
+    <div class="cg" data-for="sel">
+      <button data-a="dup" title="Duplicate (Ctrl+D)"><i data-i="copy"></i></button>
+      <button data-a="lock" title="Lock / unlock"><i data-i="lock"></i></button>
+      <button data-a="del" title="Delete (Del)"><i data-i="trash"></i></button>
+    </div>
+    <div class="cg" data-for="lockall">
+      <button data-a="unlockall"><i data-i="unlock"></i><span>Unlock all</span></button>
+    </div>
+  </div>
+  <div id="sBody">
+    <div id="sRail"></div>
+    <div id="sWrap">
+      <svg id="sSvg" xmlns="http://www.w3.org/2000/svg">
+        <defs><pattern id="gridp" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#c9d3dd" stroke-width="0.6"/></pattern></defs>
+        <g id="vw">
+          <rect id="pgShadow" fill="#000" opacity=".15"/>
+          <rect id="pgRect" fill="#fff"/>
+          <rect id="pgGrid" fill="url(#gridp)" style="display:none" pointer-events="none"/>
+          <g id="gObj"></g>
+          <rect id="pgBorder" fill="none" stroke="#333" stroke-width="1.5" pointer-events="none"/>
+          <g id="gOver" pointer-events="none"></g>
+        </g>
+      </svg>
+      <textarea id="sTa" spellcheck="false"></textarea>
+      <div id="sFin" hidden><button class="pill" id="sFinOk"><i data-i="check"></i><span>Finish line</span></button><button class="ic" id="sFinNo" title="Cancel line"><i data-i="close"></i></button></div>
+      <div id="sHint"></div>
+      <div id="sSym">
+        <div class="sh">
+          <input type="search" id="sSymQ" placeholder="Search symbols…">
+          <button class="ic" id="sSymX" title="Close" aria-label="Close"><i data-i="close"></i></button>
+        </div>
+        <div id="sSymCats"></div>
+        <div class="so">
+          <label><input type="checkbox" id="sSymAuto"> Add name</label>
+          <select id="sSymLang" title="Name language"><option value="en">English</option><option value="ml">മലയാളം</option></select>
+        </div>
+        <div id="sSymGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
+<script src="js/icons.js?v=1.0.0"></script>
+<script src="js/store.js?v=1.0.0"></script>
+<script src="js/symbols.js?v=1.0.0"></script>
+<script src="js/symbols-pictos.js?v=1.0.0"></script>
+<script src="js/core.js?v=1.0.0"></script>
+<script src="js/studio.js?v=1.0.0"></script>
+<script src="js/editor.js?v=1.0.0"></script>
+<script src="js/files.js?v=1.0.0"></script>
+<script src="js/main.js?v=1.0.0"></script>
 </body>
 </html>
