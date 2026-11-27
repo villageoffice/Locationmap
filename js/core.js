@@ -258,7 +258,7 @@ function buildSVG(d,o){
   const ns='xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"';
   const head=o.px?'<svg '+ns+' width="'+d.w+'" height="'+d.h+'" viewBox="0 0 '+d.w+' '+d.h+'">'
     :'<svg '+ns+' viewBox="0 0 '+d.w+' '+d.h+'" style="width:'+(o.pct||100)+'%;max-width:100%;height:auto">';
-  let body='<rect width="'+d.w+'" height="'+d.h+'" fill="'+(d.bg||'#fff')+'"/>'+renderObjs(d,false);
+  let body='<rect width="'+d.w+'" height="'+d.h+'" fill="'+(d.bg||'#fff')+'"/>'+(typeof tplSVG==='function'?tplSVG(d):'')+renderObjs(d,false);
   if(d.frame!==false) body+='<rect x="0.75" y="0.75" width="'+(d.w-1.5)+'" height="'+(d.h-1.5)+'" fill="none" stroke="#333" stroke-width="1.5"/>';
   let s=head+body+'</svg>';
   if(o.px) s=s.replace(/font-family="([^"]*)"/g,(m,f)=>'font-family="'+f+",'Nirmala UI','Kartika','Noto Sans Malayalam',sans-serif"+'"');
@@ -272,7 +272,7 @@ function svgToPng(svg,w,h,scale){
     im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
   });
 }
-function newData(w,h){return {v:1,w,h,bg:'#ffffff',frame:true,objs:[],imgs:{}};}
+function newData(w,h){return {v:1,w,h,bg:'#ffffff',frame:true,tpl:null,objs:[],imgs:{}};}
 function fitText(o){
   const t=$('#sMT');
   t.setAttribute('font-family',o.font||FONT);t.setAttribute('font-size',o.fs);

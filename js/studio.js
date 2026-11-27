@@ -17,7 +17,7 @@ function hint(s){$('#sHint').textContent=s||'';}
 function toolHint(){const t=DS.tool;hint(HINT[t]||(K[t]?HINT.draw:HINT.box));}
 
 /* ---- history ---- */
-function snapStr(){const d=DS.data;return JSON.stringify({w:d.w,h:d.h,bg:d.bg,frame:d.frame,objs:d.objs});}
+function snapStr(){const d=DS.data;return JSON.stringify({w:d.w,h:d.h,bg:d.bg,frame:d.frame,tpl:d.tpl||null,objs:d.objs});}
 function pushH(key){
   const now=Date.now();
   if(key&&DS.lastKey===key&&now-DS.lastKeyT<1000){DS.lastKeyT=now;DS.dirty=true;return;}
@@ -59,6 +59,7 @@ function applyPage(){
   const sh=$('#pgShadow');sh.setAttribute('width',d.w);sh.setAttribute('height',d.h);sh.setAttribute('x',4);sh.setAttribute('y',4);
   $('#pgRect').setAttribute('fill',d.bg||'#fff');
   $('#pgBorder').style.display=d.frame===false?'none':'';
+  $('#gTpl').innerHTML=tplSVG(d);
   $('#pgGrid').style.display=DS.grid?'':'none';
   const pi=$('#sPageInfo');if(pi)pi.textContent=d.w+' \u00d7 '+d.h+' px \u00b7 '+(d.w>=d.h?'Landscape':'Portrait');
 }
@@ -782,6 +783,7 @@ const PRESETS={a4:[794,1123],a3:[1123,1587],a5:[559,794],std:[900,600],wide:[960
 function openPage(){
   const d=DS.data;
   $('#pgW').value=d.w;$('#pgH').value=d.h;$('#pgBg').value=toHex(d.bg||'#ffffff');$('#pgFrameChk').checked=d.frame!==false;
+  syncTpl();
   $('#dlgPage').showModal();
 }
 function setPageSize(w,h){
@@ -792,7 +794,39 @@ function setPageSize(w,h){
   $('#pgW').value=w;$('#pgH').value=h;
   toast(w>=h?'Landscape':'Portrait');
 }
+function syncTpl(){
+  const t=tplOk(DS.data.tpl);
+  $('#tplSel').value=t?(t.id||'img'):'';
+  $('#tplImgOpt').hidden=!(t&&t.src);
+  $('#tplRemove').disabled=!t;
+}
+function setTemplate(t,fit){
+  pushH();DS.data.tpl=t;
+  if(fit){DS.data.w=fit[0];DS.data.h=fit[1];}
+  applyPage();renderStudio();if(fit)fitView();syncTpl();
+}
+function wireTpl(){
+  $('#tplSel').addEventListener('change',e=>{
+    const v=e.target.value;
+    if(v==='')setTemplate(null);
+    else if(TEMPLATES[v]){const T=TEMPLATES[v];setTemplate({id:v},[T.w,T.h]);toast('Template added \u2013 draw inside the blank area');$('#pgW').value=T.w;$('#pgH').value=T.h;}
+    else syncTpl();
+  });
+  $('#tplRemove').addEventListener('click',()=>{setTemplate(null);toast('Template removed');});
+  $('#tplUp').addEventListener('click',()=>$('#tplIn').click());
+  $('#tplIn').addEventListener('change',e=>{
+    const f=e.target.files[0];e.target.value='';if(!f||!DS.data)return;
+    loadImg(f,1800,(url,iw,ih)=>{
+      const t=tplOk({src:url.replace(/^data:image\/jpg/,'data:image/jpeg')});
+      if(!t){toast('Use a PNG, JPG or WebP picture');return;}
+      /* keep the page width, match the picture's proportions */
+      setTemplate(t,[DS.data.w,Math.max(100,Math.min(6000,Math.round(DS.data.w*ih/iw)))]);
+      $('#pgW').value=DS.data.w;$('#pgH').value=DS.data.h;toast('Template picture added');
+    });
+  });
+}
 function wirePage(){
+  wireTpl();
   $$('#pgPresets [data-p]').forEach(b=>b.addEventListener('click',()=>{
     const a=PRESETS[b.dataset.p],land=DS.data.w>=DS.data.h,mx=Math.max(a[0],a[1]),mn=Math.min(a[0],a[1]);
     setPageSize(land?mx:mn,land?mn:mx);
@@ -820,14 +854,14 @@ function wirePage(){
 function usedImgs(d){const o={};d.objs.forEach(x=>{if(x.type==='img'&&d.imgs[x.src])o[x.src]=d.imgs[x.src];});return o;}
 function drawingJSON(){
   const d=DS.data;
-  return JSON.stringify({app:'docstudio-drawing',v:1,saved:new Date().toISOString(),data:{w:d.w,h:d.h,bg:d.bg,frame:d.frame,objs:d.objs,imgs:usedImgs(d)}});
+  return JSON.stringify({app:'docstudio-drawing',v:1,saved:new Date().toISOString(),data:{w:d.w,h:d.h,bg:d.bg,frame:d.frame,tpl:tplOk(d.tpl),objs:d.objs,imgs:usedImgs(d)}});
 }
 function loadDrawingText(text){
   let j;try{j=JSON.parse(text);}catch(_){toast('Not a valid drawing file');return false;}
   const d=j&&j.app==='docstudio-drawing'?j.data:(j&&Array.isArray(j.objs)?j:null);
   if(!d||!Array.isArray(d.objs)){toast('This is not a drawing file');return false;}
   pushH();
-  DS.data.w=d.w||900;DS.data.h=d.h||600;DS.data.bg=d.bg||'#ffffff';DS.data.frame=d.frame!==false;
+  DS.data.w=d.w||900;DS.data.h=d.h||600;DS.data.bg=d.bg||'#ffffff';DS.data.frame=d.frame!==false;DS.data.tpl=tplOk(d.tpl);
   DS.data.objs=d.objs;DS.data.imgs=d.imgs||{};
   DS.sel=[];DS.nodeMode=false;applyPage();renderStudio();fitView();syncCtx();toast('Drawing opened');
   return true;

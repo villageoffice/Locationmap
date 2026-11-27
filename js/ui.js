@@ -106,6 +106,7 @@ const STUDIO_MENUS = [
     { i: 'download', t: 'Export SVG', run: pressBtn('#dfSvg') },
     '-',
     { i: 'page', t: 'Page setup…', run: pressBtn('#sPage') },
+    { i: 'page', t: 'Template page (add / remove / upload)…', run: pressBtn('#sPage') },
     { i: 'orient', t: 'Portrait / landscape', run: pressBtn('#sOrient') },
     { i: 'history', t: 'Revert to how it was when opened', run: pressBtn('#dfRevert') },
     { i: 'trash', t: 'Clear drawing', danger: 1, run: pressBtn('#dfClear') },
