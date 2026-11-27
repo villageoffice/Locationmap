@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;600&family=Chilanka&family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Serif+Malayalam:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1.2.2">
+<link rel="stylesheet" href="css/style.css?v=1.3.0">
 </head>
 <body>
 
@@ -206,6 +206,16 @@
     <div class="row" id="pgOrient">
       <button data-o="p">Portrait</button><button data-o="l">Landscape</button>
     </div>
+    <div class="tplbox">
+      <div class="tplh">Template page (background)</div>
+      <div class="row">
+        <select id="tplSel"><option value="">None (blank page)</option><option value="locmap">Location Map form (Malayalam, A4)</option><option value="img" id="tplImgOpt" hidden>My uploaded picture</option></select>
+        <button id="tplUp" class="btn"><i data-i="image"></i>Upload template…</button>
+        <button id="tplRemove" class="btn"><i data-i="trash"></i>Remove</button>
+      </div>
+      <p class="note">The template stays locked behind your drawing. Upload any PNG / JPG of a form or sheet to use it as the page.</p>
+      <input type="file" id="tplIn" accept="image/png,image/jpeg,image/webp" hidden>
+    </div>
     <label>Width <input type="number" id="pgW" min="100" max="6000"></label>
     <label>Height <input type="number" id="pgH" min="100" max="6000"></label>
     <label>Background <input type="color" id="pgBg"></label>
@@ -262,6 +272,7 @@
         <g id="vw">
           <rect id="pgShadow" fill="#000" opacity=".15"/>
           <rect id="pgRect" fill="#fff"/>
+          <g id="gTpl" pointer-events="none"></g>
           <rect id="pgGrid" fill="url(#gridp)" style="display:none" pointer-events="none"/>
           <g id="gObj"></g>
           <rect id="pgBorder" fill="none" stroke="#333" stroke-width="1.5" pointer-events="none"/>
@@ -370,15 +381,16 @@
   <footer id="sStat"><span id="sCoord">X 0&nbsp; Y 0</span><span id="sPageInfo"></span><span class="sp"></span><span id="sSelInfo"></span></footer>
 </div>
 
-<script src="js/icons.js?v=1.2.2"></script>
-<script src="js/store.js?v=1.2.2"></script>
-<script src="js/symbols.js?v=1.2.2"></script>
-<script src="js/symbols-pictos.js?v=1.2.2"></script>
-<script src="js/core.js?v=1.2.2"></script>
-<script src="js/studio.js?v=1.2.2"></script>
-<script src="js/editor.js?v=1.2.2"></script>
-<script src="js/files.js?v=1.2.2"></script>
-<script src="js/ui.js?v=1.2.2"></script>
-<script src="js/main.js?v=1.2.2"></script>
+<script src="js/icons.js?v=1.3.0"></script>
+<script src="js/store.js?v=1.3.0"></script>
+<script src="js/symbols.js?v=1.3.0"></script>
+<script src="js/symbols-pictos.js?v=1.3.0"></script>
+<script src="js/templates.js?v=1.3.0"></script>
+<script src="js/core.js?v=1.3.0"></script>
+<script src="js/studio.js?v=1.3.0"></script>
+<script src="js/editor.js?v=1.3.0"></script>
+<script src="js/files.js?v=1.3.0"></script>
+<script src="js/ui.js?v=1.3.0"></script>
+<script src="js/main.js?v=1.3.0"></script>
 </body>
 </html>

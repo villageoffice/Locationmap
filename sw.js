@@ -1,8 +1,8 @@
 /* Offline support: app files are cached on first visit and refreshed in the background.
    Bump VERSION when you publish a new release. */
-const VERSION = 'docstudio-1.2.2';
+const VERSION = 'docstudio-1.3.0';
 const CORE = ['./', 'index.html', 'css/style.css', 'js/icons.js', 'js/store.js', 'js/symbols.js', 'js/symbols-pictos.js',
-  'js/core.js', 'js/studio.js', 'js/editor.js', 'js/files.js', 'js/ui.js', 'js/main.js', 'vendor/qrcode.js', 'manifest.webmanifest', 'icons/icon.svg'];
+  'js/templates.js', 'js/core.js', 'js/studio.js', 'js/editor.js', 'js/files.js', 'js/ui.js', 'js/main.js', 'vendor/qrcode.js', 'manifest.webmanifest', 'icons/icon.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => null)))).then(() => self.skipWaiting()));
